@@ -1,0 +1,9 @@
+# JetBrains IDE
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 최상위 레벨 환경변수 (혹시 루트에 .env를 두는 경우 대비)
+.env

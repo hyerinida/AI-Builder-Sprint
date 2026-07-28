@@ -19,14 +19,23 @@ npm run build     # 타입체크 + 프로덕션 빌드
 npm run lint      # oxlint
 ```
 
-### backend
+### backend (Spring Boot + Java 21 + Gradle)
 
-아직 스택 미확정. 구성 후 이 섹션에 실행/테스트 명령을 추가한다.
+```bash
+cd backend/prism
+./gradlew bootRun     # 로컬 서버 실행
+./gradlew build       # 빌드 + 테스트
+./gradlew test        # 테스트만 실행
+```
+
+- 기본 설정 파일: `backend/prism/src/main/resources/application.yaml`
+- 패키지 루트: `com.dontgiveup.prism`
 
 ## 스타일 규칙
 
 - frontend: TypeScript 사용, 스타일링은 Tailwind 클래스 우선 (별도 CSS 파일 최소화)
 - 상태관리 라이브러리(Redux, Zustand 등)는 실제로 복잡한 전역 상태가 생기기 전까지 도입하지 않는다 (React state/Context로 충분)
+- backend: Lombok으로 보일러플레이트 최소화, 컨트롤러/서비스/리포지토리 계층 분리 유지
 - 커밋 메시지는 `feat:`, `fix:`, `chore:` 등 conventional commit 형식 사용
 
 ## 브랜치 / PR 규칙
