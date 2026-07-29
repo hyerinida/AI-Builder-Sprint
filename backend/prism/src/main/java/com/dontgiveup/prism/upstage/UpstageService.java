@@ -1,5 +1,6 @@
 package com.dontgiveup.prism.upstage;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -47,5 +48,23 @@ public class UpstageService {
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class);
+    }
+
+    public Mono<JsonNode> parseDocumentAsJson(MultipartFile document) throws IOException {
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("document", document.getResource());
+        builder.part("model", "document-parse");
+        builder.part("output_formats", "['markdown']");
+
+        return upstageWebClient.post()
+                .uri("/v1/document-digitization")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(builder.build()))
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new RuntimeException(
+                                        "Upstage 오류 응답: " + body))))
+                .bodyToMono(JsonNode.class);
     }
 }
