@@ -1,1 +1,20 @@
 @import "tailwindcss";
+@import "@fontsource/pretendard/400.css";
+@import "@fontsource/pretendard/500.css";
+@import "@fontsource/pretendard/600.css";
+@import "@fontsource/pretendard/700.css";
+
+@theme {
+  --color-ink-900: #242b31;
+  --color-ink-700: #2f373f;
+  --color-primary-900: #202e5b;
+  --color-primary-700: #132f9c;
+  --color-primary-400: #9173ca;
+  --color-primary-100: #d6f4f2;
+  --color-muted: #535353;
+  --font-sans: "Pretendard", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+}
