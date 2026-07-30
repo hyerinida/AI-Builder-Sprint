@@ -35,6 +35,10 @@ public class Document {
 
     @Setter
     @Lob
+    private String analysisResultJson;
+
+    @Setter
+    @Lob
     private String errorMessage;
 
     private LocalDateTime createdAt;

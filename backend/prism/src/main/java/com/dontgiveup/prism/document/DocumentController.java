@@ -16,11 +16,8 @@ public class DocumentController {
     }
 
     @PostMapping(consumes = "multipart/form-data")
-    public Mono<ResponseEntity<DocumentResponse>> upload(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("documentType") DocumentType documentType
-    ) {
-        return documentService.uploadAndParse(file, documentType).map(ResponseEntity::ok);
+    public Mono<ResponseEntity<DocumentResponse>> upload(@RequestParam("file") MultipartFile file) {
+        return documentService.analyze(file).map(ResponseEntity::ok);
     }
 
     @GetMapping("/{id}")

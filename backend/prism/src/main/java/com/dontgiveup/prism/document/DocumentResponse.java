@@ -8,6 +8,7 @@ public record DocumentResponse(
         DocumentType documentType,
         DocumentStatus status,
         String parsedMarkdown,
+        Object analysis,
         String errorMessage,
         LocalDateTime createdAt
 ) {}
