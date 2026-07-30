@@ -31,6 +31,7 @@ public final class DocumentAnalysisSchema {
         frameAnalysisItem.put("properties", frameAnalysisProps);
         frameAnalysisItem.put("required", List.of("originalText", "category", "interpretation"));
 
+
         Map<String, Object> realityTranslationProps = new LinkedHashMap<>();
         realityTranslationProps.put("originalText", Map.of(
                 "type", "string",
@@ -49,6 +50,23 @@ public final class DocumentAnalysisSchema {
         realityTranslationItem.put("type", "object");
         realityTranslationItem.put("properties", realityTranslationProps);
         realityTranslationItem.put("required", List.of("originalText", "easyWords", "realWorldImpact"));
+
+
+        Map<String, Object> actionGuideItemProps = new LinkedHashMap<>();
+        actionGuideItemProps.put("item", Map.of(
+                "type", "string",
+                "description", "체크리스트에 표시할 짧은 항목명 (예: '등기부등본 확인', '입주 전 사진 촬영')"
+        ));
+        actionGuideItemProps.put("description", Map.of(
+                "type", "string",
+                "description", "이 항목이 왜 필요한지, 어떤 위험을 예방하거나 어떤 불이익을 막을 수 있는지에 대한 한 문장 설명"
+        ));
+
+        Map<String, Object> actionGuideItem = new LinkedHashMap<>();
+        actionGuideItem.put("type", "object");
+        actionGuideItem.put("properties", actionGuideItemProps);
+        actionGuideItem.put("required", List.of("item", "description"));
+
 
         Map<String, Object> properties = new LinkedHashMap<>();
         properties.put("documentType", Map.of(
@@ -75,12 +93,18 @@ public final class DocumentAnalysisSchema {
                 "items", realityTranslationItem,
                 "description", "실생활에 구체적 영향을 주는 조항만 선별하여 쉬운 말과 실제 발생 가능한 상황으로 번역한 목록"
         ));
+        properties.put("actionGuides", Map.of(
+                "type", "array",
+                "items", actionGuideItem,
+                "description", "문서 종류(documentType)에 맞춰, 사용자가 문서 밖에서 추가로 확인해야 할 사항과 " +
+                        "문서를 받은 이후 실제로 취해야 할 행동을 함께 제시하는 체크리스트"
+        ));
 
         Map<String, Object> schema = new LinkedHashMap<>();
         schema.put("type", "object");
         schema.put("properties", properties);
         schema.put("required", List.of("documentType", "documentSummary", "frameSummary",
-                "frameAnalyses", "realityTranslations"));
+                "frameAnalyses", "realityTranslations", "actionGuides"));
         return schema;
     }
 }
