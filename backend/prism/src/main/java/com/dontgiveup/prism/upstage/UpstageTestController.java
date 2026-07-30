@@ -1,5 +1,6 @@
 package com.dontgiveup.prism.upstage;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ public class UpstageTestController {
         this.upstageService = upstageService;
     }
 
+    @Operation(summary = "Upstage API 챗 연결 테스트", description = "Upstage API 챗 연결 테스트 용도입니다")
     @GetMapping("/chat-test")
     public Mono<ResponseEntity<String>> chatTest() {
         return upstageService.chat("안녕하세요, 연결 테스트입니다.")
@@ -26,6 +28,7 @@ public class UpstageTestController {
                 ));
     }
 
+    @Operation(summary = "Upstage API parse 테스트", description = "Upstage API 문서 parse 테스트 용도입니다")
     @PostMapping(value = "/parse-test", consumes = "multipart/form-data")
     public Mono<ResponseEntity<String>> parseTest(@RequestParam("document") MultipartFile document) {
         try {
