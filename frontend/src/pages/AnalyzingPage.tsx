@@ -1,25 +1,11 @@
 import { useEffect, useState } from 'react'
 import { AppLayout } from '../components/layout/AppLayout'
 import { ChecklistItem } from '../components/analyzing/ChecklistItem'
-import {
-  analyzeDocument,
-  extractInfo,
-  analyzeFrames,
-  translateToReality,
-  summarizeDocument,
-  generateActionGuide,
-} from '../api/documents'
+import { analyzeDocument, type DocumentAnalysisResponse } from '../api/documents'
 
-const STEPS: { labels: string[]; run: (documentId: string) => Promise<unknown> }[] = [
-  { labels: ['OCR', '문서 구조 분석'], run: analyzeDocument },
-  { labels: ['정보 추출'], run: extractInfo },
-  { labels: ['프레임 분석'], run: analyzeFrames },
-  { labels: ['현실 번역'], run: translateToReality },
-  { labels: ['문서 요약 생성'], run: summarizeDocument },
-  { labels: ['행동 가이드 생성'], run: generateActionGuide },
-]
-
-const ALL_LABELS = STEPS.flatMap((step) => step.labels)
+const LABELS = ['OCR 및 문서 구조 분석', '프레임 분석', '현실 번역', '문서 요약 생성', '행동 가이드 생성']
+const STEP_INTERVAL_MS = 900
+const RESULT_TRANSITION_MS = 600
 
 const HEADING_GRADIENT = {
   backgroundImage:
@@ -30,37 +16,45 @@ const HEADING_GRADIENT = {
 } as const
 
 export function AnalyzingPage({
-  documentId,
+  file,
   onLogoClick,
+  onComplete,
 }: {
-  documentId: string
+  file: File
   onLogoClick: () => void
+  onComplete: (result: DocumentAnalysisResponse) => void
 }) {
-  const [completedLabels, setCompletedLabels] = useState<string[]>([])
+  const [completedCount, setCompletedCount] = useState(0)
   const [error, setError] = useState(false)
-  const isDone = completedLabels.length === ALL_LABELS.length
+  const isDone = completedCount === LABELS.length
 
   useEffect(() => {
     let cancelled = false
 
-    async function run() {
-      for (const step of STEPS) {
-        try {
-          await step.run(documentId)
-        } catch {
-          if (!cancelled) setError(true)
-          return
-        }
-        if (cancelled) return
-        setCompletedLabels((prev) => [...prev, ...step.labels])
-      }
-    }
+    const timer = setInterval(() => {
+      setCompletedCount((prev) => (prev < LABELS.length - 1 ? prev + 1 : prev))
+    }, STEP_INTERVAL_MS)
 
-    run()
+    analyzeDocument(file)
+      .then((result) => {
+        if (cancelled) return
+        clearInterval(timer)
+        setCompletedCount(LABELS.length)
+        setTimeout(() => {
+          if (!cancelled) onComplete(result)
+        }, RESULT_TRANSITION_MS)
+      })
+      .catch(() => {
+        if (cancelled) return
+        clearInterval(timer)
+        setError(true)
+      })
+
     return () => {
       cancelled = true
+      clearInterval(timer)
     }
-  }, [documentId])
+  }, [file, onComplete])
 
   return (
     <AppLayout onLogoClick={onLogoClick}>
@@ -70,8 +64,8 @@ export function AnalyzingPage({
             {isDone ? '분석이 완료되었어요' : '문서를 간단하게 변환 중이에요'}
           </p>
           <div className="flex w-[170px] flex-col items-start gap-4">
-            {ALL_LABELS.map((label) => (
-              <ChecklistItem key={label} label={label} done={completedLabels.includes(label)} />
+            {LABELS.map((label, index) => (
+              <ChecklistItem key={label} label={label} done={index < completedCount} />
             ))}
           </div>
         </div>
