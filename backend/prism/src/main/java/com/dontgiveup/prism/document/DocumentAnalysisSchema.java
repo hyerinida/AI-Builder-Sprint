@@ -77,7 +77,9 @@ public final class DocumentAnalysisSchema {
         ));
         properties.put("documentSummary", Map.of(
                 "type", "string",
-                "description", "문서가 어떤 내용인지 2~3문장으로 요약 (내용 요약)"
+                "description", "문서 전체 내용을 분량 제한 없이 빠짐없이 요약. 문서에 포함된 주요 조항, 조건, " +
+                        "금액, 기간 등 핵심 정보를 모두 포함하여 독자가 원문을 읽지 않아도 전체 내용을 " +
+                        "정확히 파악할 수 있도록 상세하게 작성"
         ));
         properties.put("frameSummary", Map.of(
                 "type", "string",
