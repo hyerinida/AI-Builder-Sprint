@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AppLayout } from '../components/layout/AppLayout'
-import { ChecklistItem } from '../components/analyzing/ChecklistItem'
 import type { CompletedDocumentAnalysisResponse } from '../api/documents'
 
-const LABELS = ['OCR 및 문서 구조 분석', '프레임 분석', '현실 번역', '문서 요약 생성', '행동 가이드 생성']
-const STEP_INTERVAL_MS = 900
 const RESULT_TRANSITION_MS = 600
 
 const HEADING_GRADIENT = {
@@ -24,50 +21,39 @@ export function AnalyzingPage({
   onLogoClick: () => void
   onComplete: (result: CompletedDocumentAnalysisResponse) => void
 }) {
-  const [completedCount, setCompletedCount] = useState(0)
+  const [isDone, setIsDone] = useState(false)
   const [error, setError] = useState(false)
-  const isDone = completedCount === LABELS.length
 
   useEffect(() => {
     let cancelled = false
 
-    const timer = setInterval(() => {
-      setCompletedCount((prev) => (prev < LABELS.length - 1 ? prev + 1 : prev))
-    }, STEP_INTERVAL_MS)
-
     resultPromise
       .then((result) => {
         if (cancelled) return
-        clearInterval(timer)
-        setCompletedCount(LABELS.length)
+        setIsDone(true)
         setTimeout(() => {
           if (!cancelled) onComplete(result)
         }, RESULT_TRANSITION_MS)
       })
       .catch(() => {
-        if (cancelled) return
-        clearInterval(timer)
-        setError(true)
+        if (!cancelled) setError(true)
       })
 
     return () => {
       cancelled = true
-      clearInterval(timer)
     }
   }, [resultPromise, onComplete])
 
   return (
     <AppLayout onLogoClick={onLogoClick}>
       <div className="flex flex-col items-center gap-[64px]">
-        <div className="flex flex-col items-center gap-[84px]">
+        <div className="flex flex-col items-center gap-[48px]">
           <p style={HEADING_GRADIENT} className="text-[40px] leading-[48px] font-bold">
             {isDone ? '분석이 완료되었어요' : '문서를 간단하게 변환 중이에요'}
           </p>
-          <div className="flex w-fit flex-col items-start gap-4">
-            {LABELS.map((label, index) => (
-              <ChecklistItem key={label} label={label} done={index < completedCount} />
-            ))}
-          </div>
+          {!isDone && !error && (
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#D6F4F2] border-t-[#132F9C]" />
+          )}
         </div>
         {error ? (
           <p className="text-[16px] leading-[19px] font-medium text-red-500">
