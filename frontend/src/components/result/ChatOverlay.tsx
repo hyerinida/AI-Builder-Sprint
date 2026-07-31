@@ -41,7 +41,7 @@ export function ChatOverlay({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      <div className="pointer-events-none absolute top-[692px] left-1/2 h-14 w-[798px] -translate-x-1/2 bg-[#D9D9D9]/40 blur-[45px]" />
+      <div className="pointer-events-none absolute top-[642px] left-1/2 h-14 w-[798px] -translate-x-1/2 bg-[#D9D9D9]/40 blur-[45px]" />
       <div
         className="absolute inset-x-0 top-[107px] bottom-0"
         style={{
@@ -51,7 +51,7 @@ export function ChatOverlay({
       />
       <div className="pointer-events-none absolute inset-x-0 top-[107px] h-[193px] bg-gradient-to-b from-white/20 via-white/5 to-transparent" />
       {messages.length === 0 ? (
-        <div className="absolute top-[441px] left-1/2 flex w-[824px] -translate-x-1/2 flex-col items-center gap-11">
+        <div className="absolute top-[391px] left-1/2 flex w-[824px] -translate-x-1/2 flex-col items-center gap-11">
           <div className="drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">
             <p
               className="inline-block bg-clip-text text-center text-[36px] leading-[43px] font-bold text-transparent"
@@ -97,7 +97,7 @@ export function ChatOverlay({
         </div>
       )}
 
-      <div className="absolute top-[692px] left-1/2 -translate-x-1/2">
+      <div className="absolute top-[642px] left-1/2 -translate-x-1/2">
         <div className="relative flex h-14 w-[798px] items-center justify-between rounded-[36px] bg-[#F2F2F2] py-2 pr-[7px] pl-[23px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)]">
           <input
             value={input}
