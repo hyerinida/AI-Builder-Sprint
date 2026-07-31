@@ -13,23 +13,27 @@ public final class DocumentAnalysisSchema {
         Map<String, Object> frameAnalysisProps = new LinkedHashMap<>();
         frameAnalysisProps.put("originalText", Map.of(
                 "type", "string",
-                "description", "문서 원문에 실제로 존재하는 문장/구절을 한 글자도 바꾸지 않고 그대로 복사한 것"
+                "description", "문서 원문에 실제로 존재하는 문장/구절을 한 글자도 바꾸지 않고 그대로 복사한 것 (하이라이트 위치 탐색용)"
         ));
         frameAnalysisProps.put("category", Map.of(
                 "type", "string",
                 "enum", List.of("RESPONSIBILITY", "RISK", "DECISION_AUTHORITY",
                         "ACTION_REQUIRED", "HIDDEN_CONDITION", "BENEFIT_LIMITATION"),
-                "description", "책임소재/위험부담/결정권/행동요구/숨은조건/혜택제한 중 이 조항이 해당하는 구조적 프레임"
+                "description", "책임귀속/결정권/위험부담/행동요구/숨은조건/혜택제한 중 이 조항이 해당하는 구조적 프레임"
         ));
-        frameAnalysisProps.put("interpretation", Map.of(
+        frameAnalysisProps.put("description", Map.of(
                 "type", "string",
-                "description", "이 조항이 책임/권리/위험/혜택/선택/행동을 누구에게 어떻게 배치하는지에 대한 구조적 해석 한 문장"
+                "description", "이 조항이 권리·의무 구조상 책임/위험/결정권을 누구에게 어떻게 배치하는지에 대한 1~2문장의 구조적 해석. 원문을 그대로 반복하지 않고, 사용자에게 조언하지 않음"
+        ));
+        frameAnalysisProps.put("evidence", Map.of(
+                "type", "string",
+                "description", "판정 근거가 되는 핵심 표현만 원문 그대로 추출한 짧은 문구"
         ));
 
         Map<String, Object> frameAnalysisItem = new LinkedHashMap<>();
         frameAnalysisItem.put("type", "object");
         frameAnalysisItem.put("properties", frameAnalysisProps);
-        frameAnalysisItem.put("required", List.of("originalText", "category", "interpretation"));
+        frameAnalysisItem.put("required", List.of("originalText", "category", "description", "evidence"));
 
 
         Map<String, Object> realityTranslationProps = new LinkedHashMap<>();
@@ -88,7 +92,8 @@ public final class DocumentAnalysisSchema {
         properties.put("frameAnalyses", Map.of(
                 "type", "array",
                 "items", frameAnalysisItem,
-                "description", "구조적 프레임(책임/위험/결정권/행동요구/숨은조건/혜택제한)이 뚜렷하게 드러나는 조항만 선별한 목록"
+                "description", "구조적 프레임(책임귀속/결정권/위험부담/행동요구/숨은조건/혜택제한)이 뚜렷하게 드러나는 조항만 선별한 목록. " +
+                        "하나의 문장에 여러 프레임이 존재하면 각각 별도 객체로 분리"
         ));
         properties.put("realityTranslations", Map.of(
                 "type", "array",
