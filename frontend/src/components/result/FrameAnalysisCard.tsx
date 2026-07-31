@@ -5,7 +5,7 @@ import { ResultCard } from './ResultCard'
 export type FrameAnalysis = {
   originalText: string
   category: string
-  interpretation: string
+  description: string
 }
 
 export function FrameAnalysisCard({
@@ -16,7 +16,7 @@ export function FrameAnalysisCard({
   frameAnalyses: FrameAnalysis[]
 }) {
   const [expanded, setExpanded] = useState(false)
-  const detail = frameAnalyses.map((item) => item.interpretation).join(' ')
+  const detail = frameAnalyses.map((item) => item.description).join(' ')
 
   return (
     <ResultCard className="flex flex-col gap-[9px] px-8 py-[26px]">
@@ -30,7 +30,7 @@ export function FrameAnalysisCard({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="cursor-pointer self-end text-[12px] leading-[14px] font-medium text-[#7A7A7A]"
+          className="cursor-pointer self-end text-[12px] leading-[14px] font-medium text-[#7A7A7A] hover:underline active:text-[#BEBEBE] active:no-underline"
         >
           더보기
         </button>
