@@ -1,0 +1,18 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="48" rx="14" fill="url(#prism-logo-gradient)"/>
+  <path
+    d="M5 24C9 15 16 10.5 24 10.5C32 10.5 39 15 43 24C39 33 32 37.5 24 37.5C16 37.5 9 33 5 24Z"
+    stroke="#FAFCFF"
+    stroke-width="3"
+    stroke-linejoin="round"
+  />
+  <circle cx="24" cy="24" r="6.5" stroke="#FAFCFF" stroke-width="3"/>
+  <defs>
+    <linearGradient id="prism-logo-gradient" x1="2" y1="4" x2="46" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="-0.045" stop-color="#5DB4F7"/>
+      <stop offset="0.267" stop-color="#9173CA"/>
+      <stop offset="0.647" stop-color="#132F9C"/>
+      <stop offset="1.059" stop-color="#D6F4F2"/>
+    </linearGradient>
+  </defs>
+</svg>
