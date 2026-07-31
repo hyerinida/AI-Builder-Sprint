@@ -27,4 +27,16 @@ public class DocumentController {
     public ResponseEntity<DocumentResponse> getDocument(@PathVariable Long id) {
         return ResponseEntity.ok(documentService.getById(id));
     }
+
+    @Operation(summary = "문서 내용 기반 질의응답", description = "업로드된 문서 내용을 바탕으로 사용자의 질문에 답변합니다")
+    @PostMapping("/{id}/chat")
+    public Mono<ResponseEntity<DocumentChatResponse>> chat(
+            @PathVariable Long id,
+            @RequestBody DocumentChatRequest request) {
+        return documentService.chat(id, request.question())
+                .map(ResponseEntity::ok)
+                .onErrorResume(e -> Mono.just(
+                        ResponseEntity.internalServerError().body(
+                                new DocumentChatResponse(id, request.question(), "오류: " + e.getMessage()))));
+    }
 }

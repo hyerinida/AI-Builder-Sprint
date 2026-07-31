@@ -59,6 +59,21 @@ public class DocumentService {
         }
     }
 
+    public Mono<DocumentChatResponse> chat(Long documentId, String question) {
+        Document doc = documentRepository.findById(documentId)
+                .orElseThrow(() -> new NoSuchElementException("문서를 찾을 수 없습니다: id=" + documentId));
+
+        if (doc.getParsedMarkdown() == null || doc.getParsedMarkdown().isBlank()) {
+            return Mono.error(new IllegalStateException("문서 파싱이 완료되지 않아 질문에 답할 수 없습니다."));
+        }
+
+        return upstageService.chatAboutDocument(doc.getParsedMarkdown(), question)
+                .map(result -> {
+                    String answer = result.at("/choices/0/message/content").asText();
+                    return new DocumentChatResponse(documentId, question, answer);
+                });
+    }
+
     public DocumentResponse getById(Long id) {
         Document doc = documentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("문서를 찾을 수 없습니다: id=" + id));

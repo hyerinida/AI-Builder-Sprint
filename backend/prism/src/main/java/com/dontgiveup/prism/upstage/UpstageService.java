@@ -178,4 +178,38 @@ public class UpstageService {
                                         "Upstage 오류 응답: " + body))))
                 .bodyToMono(JsonNode.class);
     }
+
+    public Mono<JsonNode> chatAboutDocument(String documentMarkdown, String question) {
+        String prompt = """
+        당신은 사용자가 업로드한 문서의 내용을 바탕으로 질문에 답하는 어시스턴트입니다.
+
+        [규칙]
+        - 반드시 아래 제공된 문서 내용에 근거해서만 답변하세요.
+        - 문서에 명시되지 않은 내용은 추측하지 말고 "문서에 명시되어 있지 않습니다"라고 답하세요.
+        - 법률/전문 용어가 있다면 일반인이 이해하기 쉬운 말로 풀어서 설명하세요.
+        - 답변은 간결하되, 필요한 근거(관련 원문 조항 요약 포함)를 함께 제시하세요.
+
+        [문서 내용]
+        %s
+
+        [사용자 질문]
+        %s
+        """.formatted(documentMarkdown, question);
+
+        Map<String, Object> requestBody = Map.of(
+                "model", "solar-pro2",
+                "messages", List.of(Map.of("role", "user", "content", prompt))
+        );
+
+        return upstageWebClient.post()
+                .uri("/v1/chat/completions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new RuntimeException(
+                                        "Upstage 오류 응답: " + body))))
+                .bodyToMono(JsonNode.class);
+    }
 }
