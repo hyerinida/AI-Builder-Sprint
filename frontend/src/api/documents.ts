@@ -25,33 +25,43 @@ export type DocumentAnalysis = {
   actionGuides: ActionGuideItem[]
 }
 
+export type DocumentStatus = 'PARSING' | 'ANALYZING' | 'COMPLETED' | 'FAILED'
+
 export type DocumentAnalysisResponse = {
   documentId: number
   fileName: string
   documentType: string
-  status: string
+  status: DocumentStatus
   parsedMarkdown: string
-  analysis: DocumentAnalysis
+  analysis: DocumentAnalysis | null
   errorMessage: string | null
   createdAt: string
 }
 
-export async function analyzeDocument(
-  file: File,
-  documentType = 'CONTRACT',
-): Promise<DocumentAnalysisResponse> {
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('documentType', documentType)
-  const response = await fetch('/api/documents', { method: 'POST', body: formData })
-  if (!response.ok) throw new Error(`문서 분석 요청 실패 (${response.status})`)
-  return response.json()
+export type CompletedDocumentAnalysisResponse = DocumentAnalysisResponse & { analysis: DocumentAnalysis }
+
+function assertCompleted(data: DocumentAnalysisResponse): asserts data is CompletedDocumentAnalysisResponse {
+  if (data.status !== 'COMPLETED' || data.analysis === null) {
+    throw new Error(data.errorMessage ?? '문서 분석에 실패했습니다.')
+  }
 }
 
-export async function getDocument(documentId: number): Promise<DocumentAnalysisResponse> {
+export async function analyzeDocument(file: File): Promise<CompletedDocumentAnalysisResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await fetch('/api/documents', { method: 'POST', body: formData })
+  if (!response.ok) throw new Error(`문서 분석 요청 실패 (${response.status})`)
+  const data: DocumentAnalysisResponse = await response.json()
+  assertCompleted(data)
+  return data
+}
+
+export async function getDocument(documentId: number): Promise<CompletedDocumentAnalysisResponse> {
   const response = await fetch(`/api/documents/${documentId}`)
   if (!response.ok) throw new Error(`문서 조회 실패 (${response.status})`)
-  return response.json()
+  const data: DocumentAnalysisResponse = await response.json()
+  assertCompleted(data)
+  return data
 }
 
 export async function sendChatMessage(documentId: number, question: string): Promise<string> {
