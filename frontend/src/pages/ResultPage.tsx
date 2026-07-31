@@ -18,7 +18,6 @@ const SUMMARY_LOADING_MS = 3600
 
 export function ResultPage({
   file,
-  frameSummary,
   frameAnalyses,
   realityTranslations,
   actionGuide,
@@ -27,7 +26,6 @@ export function ResultPage({
   onSendMessage,
 }: {
   file?: File
-  frameSummary: string
   frameAnalyses: FrameAnalysis[]
   realityTranslations: RealityTranslation[]
   actionGuide: string[]
@@ -84,7 +82,7 @@ export function ResultPage({
               className="flex max-h-[898px] flex-col gap-[14px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden"
               style={{ scrollbarWidth: 'none' }}
             >
-              <FrameAnalysisCard summary={frameSummary} frameAnalyses={frameAnalyses} />
+              <FrameAnalysisCard frameAnalyses={frameAnalyses} />
               <RealityTranslationCard items={realityTranslations} />
               <ActionGuideCard items={actionGuide} />
             </div>
