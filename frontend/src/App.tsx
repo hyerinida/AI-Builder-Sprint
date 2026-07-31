@@ -89,7 +89,6 @@ function App() {
       <ResultPage
         onLogoClick={goToUpload}
         file={stage.file}
-        frameSummary={analysis.frameSummary}
         frameAnalyses={analysis.frameAnalyses}
         realityTranslations={analysis.realityTranslations}
         actionGuide={analysis.actionGuides.map((guide) => guide.item)}
