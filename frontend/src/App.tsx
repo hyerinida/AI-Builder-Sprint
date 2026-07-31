@@ -3,13 +3,18 @@ import { AppLayout } from './components/layout/AppLayout'
 import { UploadPage } from './pages/UploadPage'
 import { AnalyzingPage } from './pages/AnalyzingPage'
 import { ResultPage } from './pages/ResultPage'
-import { getDocument, sendChatMessage, type DocumentAnalysisResponse } from './api/documents'
+import {
+  analyzeDocument,
+  getDocument,
+  sendChatMessage,
+  type CompletedDocumentAnalysisResponse,
+} from './api/documents'
 
 type Stage =
   | { name: 'upload' }
   | { name: 'restoring'; documentId: number }
-  | { name: 'analyzing'; file: File }
-  | { name: 'result'; data: DocumentAnalysisResponse }
+  | { name: 'analyzing'; file: File; resultPromise: Promise<CompletedDocumentAnalysisResponse> }
+  | { name: 'result'; data: CompletedDocumentAnalysisResponse; file?: File }
 
 function getDocumentIdFromUrl(): number | null {
   const raw = new URLSearchParams(window.location.search).get('document')
@@ -68,11 +73,11 @@ function App() {
   if (stage.name === 'analyzing') {
     return (
       <AnalyzingPage
-        file={stage.file}
+        resultPromise={stage.resultPromise}
         onLogoClick={goToUpload}
         onComplete={(data) => {
           setDocumentIdInUrl(data.documentId)
-          setStage({ name: 'result', data })
+          setStage({ name: 'result', data, file: stage.file })
         }}
       />
     )
@@ -83,6 +88,7 @@ function App() {
     return (
       <ResultPage
         onLogoClick={goToUpload}
+        file={stage.file}
         frameSummary={analysis.frameSummary}
         frameAnalyses={analysis.frameAnalyses}
         realityTranslations={analysis.realityTranslations}
@@ -93,7 +99,11 @@ function App() {
     )
   }
 
-  return <UploadPage onAnalyze={(file) => setStage({ name: 'analyzing', file })} />
+  return (
+    <UploadPage
+      onAnalyze={(file) => setStage({ name: 'analyzing', file, resultPromise: analyzeDocument(file) })}
+    />
+  )
 }
 
 export default App

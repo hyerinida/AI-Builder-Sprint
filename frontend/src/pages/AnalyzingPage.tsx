@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AppLayout } from '../components/layout/AppLayout'
 import { ChecklistItem } from '../components/analyzing/ChecklistItem'
-import { analyzeDocument, type DocumentAnalysisResponse } from '../api/documents'
+import type { CompletedDocumentAnalysisResponse } from '../api/documents'
 
 const LABELS = ['OCR 및 문서 구조 분석', '프레임 분석', '현실 번역', '문서 요약 생성', '행동 가이드 생성']
 const STEP_INTERVAL_MS = 900
@@ -16,13 +16,13 @@ const HEADING_GRADIENT = {
 } as const
 
 export function AnalyzingPage({
-  file,
+  resultPromise,
   onLogoClick,
   onComplete,
 }: {
-  file: File
+  resultPromise: Promise<CompletedDocumentAnalysisResponse>
   onLogoClick: () => void
-  onComplete: (result: DocumentAnalysisResponse) => void
+  onComplete: (result: CompletedDocumentAnalysisResponse) => void
 }) {
   const [completedCount, setCompletedCount] = useState(0)
   const [error, setError] = useState(false)
@@ -35,7 +35,7 @@ export function AnalyzingPage({
       setCompletedCount((prev) => (prev < LABELS.length - 1 ? prev + 1 : prev))
     }, STEP_INTERVAL_MS)
 
-    analyzeDocument(file)
+    resultPromise
       .then((result) => {
         if (cancelled) return
         clearInterval(timer)
@@ -54,7 +54,7 @@ export function AnalyzingPage({
       cancelled = true
       clearInterval(timer)
     }
-  }, [file, onComplete])
+  }, [resultPromise, onComplete])
 
   return (
     <AppLayout onLogoClick={onLogoClick}>
@@ -63,7 +63,7 @@ export function AnalyzingPage({
           <p style={HEADING_GRADIENT} className="text-[40px] leading-[48px] font-bold">
             {isDone ? '분석이 완료되었어요' : '문서를 간단하게 변환 중이에요'}
           </p>
-          <div className="flex w-[170px] flex-col items-start gap-4">
+          <div className="flex w-fit flex-col items-start gap-4">
             {LABELS.map((label, index) => (
               <ChecklistItem key={label} label={label} done={index < completedCount} />
             ))}
