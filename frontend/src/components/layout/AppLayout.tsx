@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { TrustBadges } from './TrustBadges'
+import logo from '../../assets/logo_prism.svg'
 
 const PAGE_BACKGROUND = {
   background:
@@ -20,8 +21,10 @@ export function AppLayout({
         onClick={onLogoClick}
         title="Page1로 돌아가기"
         aria-label="Page1로 돌아가기"
-        className="fixed top-8 left-7 h-12 w-12 cursor-pointer will-change-transform bg-[#D9D9D9]"
-      />
+        className="fixed top-8 left-7 h-12 w-12 cursor-pointer will-change-transform"
+      >
+        <img src={logo} alt="" className="h-full w-full" />
+      </button>
       <main className="flex w-[824px] min-h-[1024px] flex-col items-center pt-9">
         <h1 className="text-center text-[32px] leading-[38px] font-bold text-ink-900">PRISM</h1>
         <p className="mt-2 text-center text-[20px] leading-[24px] font-medium text-muted">

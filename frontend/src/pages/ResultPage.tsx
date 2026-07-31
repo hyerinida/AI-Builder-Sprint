@@ -7,6 +7,7 @@ import { TopBarButton } from '../components/result/TopBarButton'
 import { ChatOverlay, type ChatMessage } from '../components/result/ChatOverlay'
 import { SummaryConfirmModal } from '../components/result/SummaryConfirmModal'
 import { SummaryLoadingOverlay } from '../components/result/SummaryLoadingOverlay'
+import logo from '../assets/logo_prism.svg'
 
 const PAGE_BACKGROUND = {
   background:
@@ -16,6 +17,7 @@ const PAGE_BACKGROUND = {
 const SUMMARY_LOADING_MS = 3600
 
 export function ResultPage({
+  file,
   frameSummary,
   frameAnalyses,
   realityTranslations,
@@ -24,6 +26,7 @@ export function ResultPage({
   onLogoClick,
   onSendMessage,
 }: {
+  file?: File
   frameSummary: string
   frameAnalyses: FrameAnalysis[]
   realityTranslations: RealityTranslation[]
@@ -58,9 +61,11 @@ export function ResultPage({
         onClick={onLogoClick}
         title="Page1로 돌아가기"
         aria-label="Page1로 돌아가기"
-        className="fixed top-8 left-7 h-12 w-12 cursor-pointer bg-[#D9D9D9]"
-      />
-      <DocumentPreview />
+        className="fixed top-8 left-7 h-12 w-12 cursor-pointer"
+      >
+        <img src={logo} alt="" className="h-full w-full" />
+      </button>
+      <DocumentPreview file={file} />
       <div className="flex w-[584px] flex-col">
         {view === 'result' ? (
           <div className="flex flex-col gap-[26px]">
