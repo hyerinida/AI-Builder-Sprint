@@ -229,7 +229,7 @@ public class UpstageService {
             그리고 frameSummary에는 frameAnalyses 전체를 관통하는 이 문서의 구조적 총평을
             한 문장으로 작성하세요 (예: "이 계약은 책임과 위험이 사용자에게 집중되는 구조입니다.").
 
-            아래 문서 전체를 대상으로 두 분석을 각각 독립적으로 수행해줘:
+            아래 문서 전체를 대상으로 문서 요약과 세 분석을 각각 독립적으로 수행해줘:
 
             """ + documentMarkdown;
 
