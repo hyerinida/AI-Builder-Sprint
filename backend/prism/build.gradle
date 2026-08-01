@@ -35,3 +35,28 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// ===== 프론트엔드 빌드 통합 =====
+def frontendDir = file("${rootDir}/../../frontend")
+def npmCmd = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+
+tasks.register('npmInstall', Exec) {
+	workingDir frontendDir
+	commandLine npmCmd, 'install'
+}
+
+tasks.register('npmBuild', Exec) {
+	dependsOn npmInstall
+	workingDir frontendDir
+	commandLine npmCmd, 'run', 'build'
+}
+
+tasks.register('copyFrontend', Copy) {
+	dependsOn npmBuild
+	from "${frontendDir}/dist"
+	into "${projectDir}/src/main/resources/static"
+}
+
+tasks.named('processResources') {
+	dependsOn copyFrontend
+}
