@@ -51,18 +51,15 @@ tasks.register('npmBuild', Exec) {
 	commandLine npmCmd, 'run', 'build'
 }
 
-tasks.register('copyFrontend', Copy) {
-	// processResources가 끝난 뒤(=build/resources/main이 확정된 뒤) 그 위에 덮어써야
-	// 이후 jar/bootJar 패키징 시 정적 파일이 함께 포함된다.
-	dependsOn npmBuild, tasks.named('processResources')
-	from "${frontendDir}/dist"
-	into layout.buildDirectory.dir('resources/main/static')
-}
-
-// 배포/제출용 패키징(jar, bootJar)에만 프론트 빌드를 강제한다.
 tasks.named('jar') {
-	dependsOn copyFrontend
+	dependsOn npmBuild
+	from("${frontendDir}/dist") {
+		into 'static'
+	}
 }
 tasks.named('bootJar') {
-	dependsOn copyFrontend
+	dependsOn npmBuild
+	from("${frontendDir}/dist") {
+		into 'BOOT-INF/classes/static'
+	}
 }
