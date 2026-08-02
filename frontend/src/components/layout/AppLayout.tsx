@@ -27,8 +27,8 @@ export function AppLayout({
       </button>
       <main className="flex w-[824px] min-h-[1024px] flex-col items-center pt-9">
         <h1 className="text-center text-[32px] leading-[38px] font-bold text-ink-900">PRISM</h1>
-        <p className="mt-2 text-center text-[20px] leading-[24px] font-medium text-muted">
-          문서를 일상 언어로 번역하는 AI
+        <p className="mt-2 text-center text-[20px] leading-[24px] font-normal text-muted">
+          더 나은 의사결정을 위한 AI
         </p>
         <div className="mt-[164px] w-full">{children}</div>
       </main>

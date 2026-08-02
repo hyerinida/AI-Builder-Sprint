@@ -35,9 +35,6 @@ export function UploadPage({ onAnalyze }: { onAnalyze: (file: File) => void }) {
               </div>
             </div>
           )}
-          <p className="text-[16px] leading-[19px] font-medium text-muted">
-            업로드된 문서는 분석 완료 후 서버에 저장되지 않고 즉시 영구 삭제됩니다.
-          </p>
         </div>
       </div>
     </AppLayout>
