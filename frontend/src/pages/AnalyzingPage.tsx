@@ -55,13 +55,9 @@ export function AnalyzingPage({
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#D6F4F2] border-t-[#132F9C]" />
           )}
         </div>
-        {error ? (
+        {error && (
           <p className="text-[16px] leading-[19px] font-medium text-red-500">
             분석 중 문제가 발생했어요. 다시 시도해주세요.
-          </p>
-        ) : (
-          <p className="text-[16px] leading-[19px] font-medium text-muted">
-            업로드된 문서는 분석 완료 후 서버에 저장되지 않고 즉시 영구 삭제됩니다.
           </p>
         )}
       </div>
