@@ -1,6 +1,10 @@
 spring:
   application:
     name: prism
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 15MB
 
 upstage:
   api-key: ${UPSTAGE_API_KEY}

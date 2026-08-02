@@ -15,14 +15,22 @@ public class DocumentService {
 
     private final UpstageService upstageService;
     private final DocumentRepository documentRepository;
+    private final DocumentUploadValidator uploadValidator;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public DocumentService(UpstageService upstageService, DocumentRepository documentRepository) {
+    public DocumentService(
+            UpstageService upstageService,
+            DocumentRepository documentRepository,
+            DocumentUploadValidator uploadValidator
+    ) {
         this.upstageService = upstageService;
         this.documentRepository = documentRepository;
+        this.uploadValidator = uploadValidator;
     }
 
     public Mono<DocumentResponse> analyze(MultipartFile file) {
+        uploadValidator.validate(file);
+
         Document doc = new Document();
         doc.setFileName(file.getOriginalFilename());
         doc.setStatus(DocumentStatus.PARSING);
