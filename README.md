@@ -90,8 +90,8 @@ java -jar build/libs/prism-0.0.1-SNAPSHOT.jar
 
 ## AI 활용 내역
 
-- 프론트엔드는 개발 전 과정에서 Claude Code를 활용했으며 히스토리는 [`AI_USAGE (frontend).md`], 관련 지침은 [`AGENTS.md`], [`CLAUDE.md`]에 기록되어 있습니다.
-- 백엔드는 개발 전 과정에서 Claude를 활용하여 Upstage API(Document Parse, Solar LLM) 연동 설계, 프롬프트/스키마 설계 과정과 의사결정을 하였으며, 히스토리는 [`AI_USAGE (backend).md`]에 상세히 정리되어 있습니다.
+- 프론트엔드는 개발 전 과정에서 Claude Code를 활용했으며 히스토리는 [`AI_USAGE (frontend).md`](./AI_USAGE%20%28frontend%29.md), 관련 지침은 [`AGENTS.md`](./AGENTS.md), [`CLAUDE.md`](./CLAUDE.md)에 기록되어 있습니다.
+- 백엔드는 개발 전 과정에서 Claude를 활용하여 Upstage API(Document Parse, Solar LLM) 연동 설계, 프롬프트/스키마 설계 과정과 의사결정을 하였으며, 히스토리는 [`AI_USAGE (backend).md`](./AI_USAGE%20%28backend%29.md)에 상세히 정리되어 있습니다.
 
 ## 개인정보 및 보안
 
