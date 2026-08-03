@@ -45,6 +45,21 @@
   - 스키마 변경: 판정 근거를 결과에 별도로 남기기 위해 원문에서 그대로 추출한 핵심 근거 문구를 담는 `evidence` 필드를 신규 추가하고, 역할이 모호했던 기존 `interpretation` 필드명은 더 명확한 `description`으로 변경. `originalText`(하이라이트 위치 탐색용 전체 문장/구절)와 `evidence`(그 안에서 판정 근거가 되는 핵심 표현만 짧게 발췌)의 역할을 분리해, 프론트엔드 하이라이트 매칭 기능과 판정 근거 노출을 동시에 지원하도록 `document/DocumentAnalysisSchema.java`의 `frameAnalysisProps`를 `originalText`/`category`/`description`/`evidence` 4개 필드로 재설계
   - Few-shot 예시 축약: 원 프롬프트 초안은 카테고리당 5개(총 30개)의 예시를 포함하고 있었으나, 실제 API 호출 시 프롬프트 토큰 비용과 응답 지연을 고려해 카테고리당 1개(총 6개)로 축약해 병합. 각 프레임의 정의·판단기준·언어적 특징·경계 규칙 설명은 축약 없이 전체 반영
 
+### API 안정성 및 배포 환경 개선 관련 활용 내역 (제출 전 코드 리뷰 기반)
+- **API 예외 처리 일원화 (`GlobalExceptionHandler`)**
+  - 내용: `DocumentController.getDocument()`/`chat()`이 `DocumentService`의 `Optional.orElseThrow(NoSuchElementException)`을 리액티브 체인이 시작되기 전에 **동기적으로** 던지는 구조라, 컨트롤러 안의 `onErrorResume`으로는 잡히지 않고 스프링 기본 HTML 에러 페이지(Whitelabel Error Page)로 응답되던 문제를 Claude와 함께 코드 리뷰하며 발견. `@RestControllerAdvice` 기반 `common/GlobalExceptionHandler`를 신설하여 `NoSuchElementException`(404), `IllegalStateException`/`IllegalArgumentException`(400), `MaxUploadSizeExceededException`(413), 그 외 예외(500)를 `{status, message, timestamp}` 형태의 일관된 JSON으로 응답하도록 통일
+  - 검증: Postman으로 존재하지 않는 `documentId` 조회(`GET /api/documents/999999`) 및 존재하지 않는 문서에 챗봇 질문(`POST /api/documents/999999/chat`) 시나리오를 직접 재현하여, 수정 전(HTML 에러 페이지) → 수정 후(JSON 에러 응답) 응답 형식 변화를 확인
+
+- **업로드 파일 서버 사이드 검증 추가 (`DocumentUploadValidator`)**
+  - 내용: 프론트엔드 `UploadArea`의 `accept` 속성/`file.type` 필터링은 UX 편의 기능일 뿐 실제 요청을 막지는 못한다는 점(Postman 등으로 API를 직접 호출하면 프론트 검증이 그대로 우회됨)을 인지하고, 백엔드에도 동일 기준의 검증을 추가하기로 결정. `document/DocumentUploadValidator`를 신설해 빈 파일, 15MB 초과, PDF/JPEG/PNG 외 포맷 업로드를 `DocumentService.analyze()` 진입 시점에 차단하도록 구현(불필요한 Upstage API 호출/크레딧 낭비 방지 목적 겸함)
+  - `application.yaml`에 `spring.servlet.multipart.max-file-size`/`max-request-size: 15MB`를 추가해 애플리케이션 레벨에서도 동일 상한을 이중으로 강제
+  - 지원 포맷을 4개로 제한한 근거 정리: (1) `DocumentPreview.tsx`가 PDF/이미지 렌더링만 지원해 UI가 그릴 수 있는 포맷과 의도적으로 일치시킴 (2) PRISM이 다루는 계약서·공고문·약관류는 실제로 대부분 PDF/스캔 이미지 형태로 유통되어 실사용 시나리오에 부합 (3) 168시간의 개발 기간 내 안정적으로 QA 가능한 범위로 스코프를 의도적으로 제한 (4) 업로드 허용 확장자 화이트리스트 최소화를 통한 공격 표면 축소
+
+- **프론트엔드 번들링과 로컬 백엔드 개발 분리 (`build.gradle`)**
+  - 내용: 기존 `build.gradle`은 `processResources`가 `copyFrontend → npmBuild → npmInstall`에 의존하는 구조라, node/npm이 없는 로컬 환경에서 `./gradlew bootRun`(IntelliJ 실행 포함) 시 `npmInstall` 단계에서 빌드가 실패하는 문제를 발견. `AGENTS.md`에 명시된 "프론트/백엔드 개별 개발(`npm run dev` + `gradlew bootRun`, `vite.config.ts` 프록시 경유)" 워크플로에 맞춰, 프론트엔드 빌드를 `processResources`가 아닌 배포용 패키징 태스크(`jar`/`bootJar`)에만 연결하도록 1차 재구성
+  - 이후 `bootJar`로 패키징한 산출물이 실제 배포 환경에서 프론트 정적 파일을 찾지 못해 배포가 되지 않는 문제가 재발하여, `jar`/`bootJar` 태스크에 `from(...) { into ... }` DSL을 직접 사용해 프론트 `dist` 산출물을 각 태스크의 목적지(`jar`는 `static`, `bootJar`는 `BOOT-INF/classes/static`)에 정확히 포함하는 방식으로 2차 수정
+  - 결과적으로 `bootRun`/`test`는 Node 없이도 동작하고, 실제 배포용 패키징(`bootJar`)에서만 프론트 빌드가 트리거되도록 로컬 개발 환경과 배포 환경의 요구사항을 분리
+
 ## 2. Upstage API 활용 현황
 - **Document Parse API**: 문서 업로드 시 텍스트 추출
 - **Solar LLM**: 추출된 텍스트를 기반으로 프레임 분석, 현실 번역, 문서 요약 및 Q&A 생성
@@ -230,3 +245,7 @@
 - API 엔드포인트: `document/DocumentController.java` (`POST /api/documents`, `GET /api/documents/{id}`, `POST /api/documents/{id}/chat`)
 - 영속성 계층: `document/Document.java`(Entity), `document/DocumentRepository.java`, `document/DocumentResponse.java`(DTO)
 - Q&A 요청/응답 DTO: `document/DocumentChatRequest.java`, `document/DocumentChatResponse.java`
+- 업로드 파일 서버 사이드 검증: `document/DocumentUploadValidator.java`
+- API 전역 예외 처리(일관된 JSON 에러 응답): `common/GlobalExceptionHandler.java`
+- 업로드 크기 제한 설정: `application.yaml` (`spring.servlet.multipart.max-file-size`/`max-request-size`)
+- 프론트엔드 번들링/배포 패키징 구성: `build.gradle` (`jar`/`bootJar` 태스크의 프론트 `dist` 포함 로직)
