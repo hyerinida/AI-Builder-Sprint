@@ -1,91 +1,122 @@
-# AI Builder Sprint 2026
+# PRISM
 
-> 총 168시간, AI와 함께 만드는 도전
+> 문서를 일상 언어로 번역하는 AI
 
-## 대회 소개
+**AI Builder Sprint 2026** 참가 프로젝트. 
+계약서, 채용공고, 정부지원사업 공고, 보험약관, 개인정보 동의서처럼 어렵고 불친절한 문서를 업로드하면, AI가 문서가 실제 선택에 미치는 영향을 분석하고, 사용자가 놓치기 쉬운 위험과 확인사항을 쉽게 설명하여 의사결정을 돕는 서비스.
 
-**AI Builder Sprint 2026**은 부산대학교 **APPTIVE**가 주최하고, **Upstage**, 부산대학교 **Anchor 사업단** 및 부산대학교 **AI융합교육원**이 후원하는 해커톤입니다. 참가자들은 자유로운 기술 스택을 바탕으로 실제로 동작하는 서비스를 직접 코드로 구현합니다.
+## 문제 정의
 
-| 항목 | 내용 |
+사람은 중요한 결정을 할 때 사실보다 표현의 영향을 더 많이 받습니다.
+계약서, 채용공고, 정부지원사업 공고, 보험약관처럼 중요한 문서는 대부분 법률·행정 용어로 작성되어 있습니다. 그래서 사람들은 문장을 읽어도 그 내용이 자신에게 어떤 결과를 가져오는지 이해하기 어렵습니다. 결국 중요한 판단 요소를 놓친 채 서명하거나 신청하고, 이후 분쟁이나 피해를 겪기도 합니다. 
+문제를 해결하는 것은 AI의 분석력이고, 최종 결정을 내리는 것은 사람의 판단력입니다. PRISM은 문서를 사람이 이해할 수 있는 언어로 재해석하여 더 인간다운 의사결정을 돕습니다.
+
+## 주요 기능
+
+- **문서 업로드**: PDF, JPEG, PNG 지원 (드래그 앤 드롭 / 클릭 업로드)
+- **OCR 및 구조화 분석**: Upstage Document Parse로 텍스트 추출 → Solar LLM으로 프레임 분석·현실 번역·행동 가이드 생성
+- **프레임 분석**: 조항이 책임귀속·위험부담·결정권·행동요구·숨은조건·혜택제한 중 어떤 구조에 해당하는지 분석
+  - 예) "원상복구 비용은 임차인이 부담한다." → *이 계약은 시설 훼손에 대한 책임을 임차인에게 집중시키는 구조입니다.*
+- **현실 번역**: 조항이 실제로 어떤 상황을 만드는지 원문 → 쉬운 말 → 실제 발생 가능한 상황 3단계로 번역
+  - 예) "계약 종료 후 30일 이내 보증금을 반환한다." → *계약 종료 후 바로 보증금을 받을 수 있는 것은 아닙니다. 최대 30일까지 기다려야 할 수 있습니다. 새로운 집 계약금을 준비해야 하는 상황이라면 자금 계획이 필요할 수 있습니다.*
+- **행동 가이드**: 문서 종류에 맞춰 사용자가 문서 밖에서 확인하거나 실행해야 할 체크리스트 제시
+- **문서 요약**: 분량 제한 없이 핵심 조항·조건·금액·기간을 빠짐없이 요약
+- **문서 기반 Q&A**: 업로드한 문서 내용에 근거해서만 답변하는 챗봇
+
+## 기술 스택
+
+| 영역 | 스택 |
 | --- | --- |
-| 주제 | AI를 통해 인간다움을 더욱 잘 드러낼 수 있는 서비스 개발 |
-| 팀 구성 | 2~4인 1팀 |
-| 개발 방식 | 코드 기반 앱 개발 필수 (노코드/로우코드 단독 사용 불가) |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, pdfjs-dist |
+| Backend | Spring Boot 3.5, Java 21, Gradle, Spring WebFlux, Spring Data JPA, H2 |
+| AI | Upstage Solar LLM (`solar-pro2`, structured output), Upstage Document Parse (OCR) |
+| API 문서 | springdoc-openapi (Swagger UI) |
 
-### 진행 흐름
+## 아키텍처
 
-1. **팀 단위 참가 신청** — 팀원 정보, 프로젝트 아이디어, 활용 예정 AI 기술·API 제출
-2. **참가팀 선발** (20~50팀) — 아이디어 참신성·실현 가능성·AI 활용 계획 기반 서류 심사
-3. **예선 개발 기간** (7.27 ~ 8.3, 약 1주일) — API 크레딧 발급, 아이디어 구체화 및 개발
-4. **결과물 제출 및 1차 심사** — 데모 영상/배포 링크, 코드 저장소, 발표 자료, AI 활용 증빙 제출
-5. **본선 발표 및 질의응답** (8.7) — 팀당 7분 발표 + 5분 Q&A, 심사 후 수상팀 확정
-
-### 기술 스택 및 규칙
-
-- 사용 API·모델은 자유이며, **Upstage API**(Solar LLM, Document Parse, Information Extract) 활용 시 심사 가점
-- Claude, GPT, Gemini 등 타사 모델 병행 사용 가능 (제약 없음)
-- 프레임워크/언어 자유 (Python, JavaScript, React, Flutter 등)
-- 결과물은 데모 가능한 동작하는 앱 (웹앱, 모바일앱, CLI 도구 등 형태 무관)
-- 코딩 에이전트(Claude Code, Codex 등) 활용 시 `.claude/`, `AGENTS.md` 등 관련 설정·지침 파일을 저장소에 포함해야 심사에 반영됩니다
-
-### 심사 기준
-
-| 기준 | 배점 |
-| --- | --- |
-| 창의성 | 20점 |
-| AI 활용도 | 20점 |
-| 완성도 | 20점 |
-| 실용성 | 20점 |
-| 발표력 (본선) | 20점 |
-| Upstage API 활용 가점 | +5점 |
-| 지역사회 기여도 가점 | +5점 |
-
-### 시상 내역
-
-- 대상 1팀: 100만원 + 상품
-- 최우수상 1팀: 50만원 + 상품
-- 우수상 1팀: 상품
-- 본선 참가 10팀: Upstage 굿즈 + 참가 인증서
-
-## Git Fork 하는 방법
-
-참가팀은 이 저장소를 팀 대표의 GitHub 계정으로 **Fork**한 뒤, 해당 Fork 저장소에서 프로젝트를 개발하고 최종 결과물을 제출합니다.
-
-### 1. 저장소 Fork하기
-
-1. [AI-Builder-Sprint 저장소](https://github.com/ApptiveDev/AI-Builder-Sprint)에 접속합니다.
-2. 우측 상단의 **Fork** 버튼을 클릭합니다.
-  <img width="1888" height="1131" alt="스크린샷 2026-07-27 오전 12 31 16" src="https://github.com/user-attachments/assets/2f0f7f80-6c92-4ba5-87c5-89ed6107eeab" />
-
-3. 본인(또는 팀 대표) GitHub 계정으로 저장소가 복사됩니다. (`https://github.com/<내-계정>/AI-Builder-Sprint`)
-
-### 2. Fork한 저장소 로컬로 클론하기
-
-```bash
-git clone https://github.com/<내-계정>/AI-Builder-Sprint.git
-cd AI-Builder-Sprint
+```
+[사용자] → 문서 업로드
+   → Backend: Upstage Document Parse (OCR, markdown 추출)
+   → Backend: Upstage Solar LLM (json_schema 구조화 출력)
+        - 문서 요약 / 프레임 분석 / 현실 번역 / 행동 가이드 동시 생성
+   → Frontend: 결과 카드 렌더링 + 문서 기반 챗봇
 ```
 
-### 3. 개발 진행 및 커밋
+## 실행 방법
+
+### 1. 환경변수 설정
 
 ```bash
-git checkout -b develop
-# 코드 작성 및 수정
-git add .
-git commit -m "feat: 프로젝트 초기 구현"
-git push origin develop
+cd backend/prism
+cp .env.example .env
+# .env 파일에 UPSTAGE_API_KEY 입력
 ```
 
-포크된 저장소 내에서 개발을 진행해주시면 됩니다.
+### 2. Backend 실행 (Spring Boot + Java 21 + Gradle)
 
-### 4. 결과물 제출
+```bash
+cd backend/prism
+./gradlew bootRun     # 로컬 서버 실행 (기본 포트 8080)
+./gradlew build       # 빌드 + 테스트
+./gradlew test        # 테스트만 실행
+```
 
-- **팀별로 Fork한 본인 저장소 URL을 제출 양식에 기재합니다.**
-- 제출 마감 전까지 코드, 데모 영상/배포 링크, 발표 자료를 함께 준비해 제출해주세요.
-- 코딩 에이전트를 활용한 경우 `.claude/`, `AGENTS.md` 등 설정 파일도 반드시 저장소에 포함해주세요.
+`bootRun`/`test`는 프론트엔드 번들링과 분리되어 있어 **Node.js 없이도 백엔드만 바로 실행**할 수 있습니다. 로컬 개발 시에는 아래 3번처럼 프론트엔드 개발 서버를 별도로 띄워 사용하세요.
 
+### 3. Frontend 단독 개발 서버 (선택)
 
-## 문의
+```bash
+cd frontend
+npm install
+npm run dev       # 로컬 개발 서버 (기본 포트 5173, /api는 8080으로 프록시)
+npm run build     # 타입체크 + 프로덕션 빌드
+npm run lint      # oxlint
+```
 
-- 대회 관련 문의: 해커톤 문의 오픈채팅방
-- 주최: 부산대학교 APPTIVE, 정보컴퓨터공학부 동아리연합회 / 후원: Upstage, 부산대 Anchor 사업단, 부산대 AI융합교육원
+### 4. 배포용 단일 패키징 (선택)
+
+프론트엔드와 백엔드를 하나의 실행 가능한 jar로 묶으려면 아래 명령을 사용합니다. 이 경우에만 로컬에 Node.js/npm이 필요합니다.
+
+```bash
+cd backend/prism
+./gradlew bootJar     # frontend/를 npm install && npm run build한 뒤
+                       # 결과물을 BOOT-INF/classes/static에 포함해 실행 가능한 jar 생성
+java -jar build/libs/prism-0.0.1-SNAPSHOT.jar
+```
+
+### 5. API 문서
+
+서버 실행 후 `http://localhost:8080/swagger-ui.html` 에서 확인할 수 있습니다.
+
+## AI 활용 내역
+
+- 프론트엔드는 개발 전 과정에서 Claude Code를 활용했으며 히스토리는 [`AI_USAGE (frontend).md`], 관련 지침은 [`AGENTS.md`], [`CLAUDE.md`]에 기록되어 있습니다.
+- 백엔드는 개발 전 과정에서 Claude를 활용하여 Upstage API(Document Parse, Solar LLM) 연동 설계, 프롬프트/스키마 설계 과정과 의사결정을 하였으며, 히스토리는 [`AI_USAGE (backend).md`]에 상세히 정리되어 있습니다.
+
+## 개인정보 및 보안
+
+- 업로드된 **원본 파일**은 서버 디스크에 저장되지 않고 Upstage API로 직접 전달되어 처리됩니다.
+- OCR로 추출된 문서 내용과 분석 결과는 **재조회 기능(결과 다시보기, 문서 기반 챗봇)을 위해 DB에 보관**됩니다. 완전한 자동 삭제가 필요한 경우 별도 삭제 정책 도입이 필요합니다.
+- `UPSTAGE_API_KEY` 등 민감 정보는 `.env` 파일로 관리하며 `.gitignore`에 포함되어 저장소에 커밋되지 않습니다.
+- 업로드 가능한 파일은 PDF·JPEG·PNG, 최대 15MB로 서버에서 제한하며, 이 범위를 벗어나거나 존재하지 않는 문서를 조회하는 경우 등도 일관된 JSON 오류 응답으로 처리됩니다.
+
+## 프로젝트 구조
+
+```
+.
+├── AGENTS.md                          # 공통 에이전트 지침 (빌드/테스트/스타일 규칙)
+├── CLAUDE.md                          # Claude Code 전용 지침
+├── AI_USAGE (backend).md              # Upstage API 활용 및 프롬프트 설계 상세 기록
+├── AI_USAGE (frontend).md             # 결과 화면 컴포넌트 구현·백엔드 연동·버그 진단·E2E 검증 과정에서의 Claude Code 활용 기록
+├── backend/prism/                     # Spring Boot 백엔드
+│   └── src/main/java/com/dontgiveup/prism/
+│       ├── document/                  # 문서 업로드/분석/조회/챗봇 도메인 + 업로드 검증
+│       ├── upstage/                   # Upstage API 연동 서비스
+│       ├── config/                    # WebClient, OpenAPI 설정
+│       └── common/                    # 전역 예외 처리
+└── frontend/                          # React + Vite 프론트엔드
+    └── src/
+        ├── pages/                     # UploadPage, AnalyzingPage, ResultPage
+        ├── components/                # 업로드/결과/레이아웃/공통 컴포넌트
+        └── api/                       # 백엔드 API 클라이언트
+```
